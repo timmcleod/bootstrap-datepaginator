@@ -119,3 +119,18 @@ a.dp-nav-right {
 	right: 0;
 	top: 10;
 }
+
+.dp-notable::before,
+.dp-notable::after {
+	content: '' !important;
+	position: absolute !important;
+	top: 0 !important;
+	right: 0 !important;
+	border: transparent solid !important;
+}
+
+.dp-notable::after {
+	border-width: .25em !important;
+	border-right-color: #ed6b75 !important;
+	border-top-color: #ed6b75 !important;
+}

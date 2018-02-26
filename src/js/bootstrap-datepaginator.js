@@ -59,7 +59,9 @@
 		startDate: moment(new Date(-8640000000000000)),
 		startDateFormat: 'YYYY-MM-DD',
 		endDate: moment(new Date(8640000000000000)),
-		endDateFormat: 'YYYY-MM-DD'
+		endDateFormat: 'YYYY-MM-DD',
+		notableDates: [],
+		notableDateFormat: 'YYYY-MM-DD'
 	};
 
 	DatePaginator.prototype = {
@@ -68,6 +70,11 @@
 			this._setSelectedDate(moment(date, format ? format : this.options.selectedDateFormat));
 			this._render();
 		},
+
+        addNotableDate: function(date, format) {
+            this._addNotableDate(moment(date, format ? format : this.options.notableDateFormat));
+            this._render();
+        },
 
 		remove: function() {
 
@@ -193,6 +200,11 @@
 			}
 		},
 
+        _addNotableDate: function (notableDate) {
+            this.options.notableDates.push(notableDate.startOf('day'));
+            this.$element.trigger('notableDatesChanged', [notableDate.clone()]);
+        },
+
 		_back: function() {
 			this._setSelectedDate(this.options.selectedDate.clone().subtract('day', 1));
 			this._render();
@@ -305,6 +317,9 @@
 				if (!item.isValid) {
 					$a.addClass('dp-no-select');
 				}
+                if (item.isNotable) {
+                    $a.addClass('dp-notable');
+                }
 				$a.append(item.text);
 
 				self.$wrapper.append($(self._template.listItem).append($a));
@@ -367,6 +382,15 @@
 
 				var valid = ((m.isSame(this.options.startDate) || m.isAfter(this.options.startDate)) &&
 							(m.isSame(this.options.endDate) || m.isBefore(this.options.endDate))) ? true : false;
+
+                var isNotable = false;
+
+                for (var i = 0; i < this.options.notableDates.length; i++) {
+                    if (m.isSame(this.options.notableDates[i])) {
+                        isNotable = true;
+                        break;
+                    }
+                }
 				
 				data.items[data.items.length] = {
 					m: m.clone().format(this.options.selectedDateFormat),
@@ -377,7 +401,8 @@
 					isStartOfWeek: (this.options.startOfWeek.split(',').indexOf(m.format(this.options.startOfWeekFormat)) !== -1) ? true : false,
 					text: (m.isSame(this.options.selectedDate)) ? m.format(this.options.textSelected) : m.format(this.options.text),
 					hint: valid ? m.format(this.options.hint) : 'Invalid date',
-					itemWidth: (m.isSame(this.options.selectedDate)) ? adjustedSelectedItemWidth : adjustedItemWidth
+					itemWidth: (m.isSame(this.options.selectedDate)) ? adjustedSelectedItemWidth : adjustedItemWidth,
+					isNotable: isNotable
 				};
 			}
 
